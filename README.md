@@ -15,9 +15,7 @@ A Python tool for generating `.plexmatch` files for Plex Media Server to help co
 
 ## Requirements
 
-```bash
-pip install natsort
-```
+No external dependencies required. Uses Python standard library only.
 
 ## Usage
 

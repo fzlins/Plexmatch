@@ -1,4 +1,4 @@
-# -*- coding: utf-8-sig -*-'
+# -*- coding: utf-8-sig -*-
 
 # python -m Plexmatch -d 'C:\directory -o'
 # python -m Plexmatch -d '//Network\directory -o'
@@ -10,7 +10,7 @@ from argparse import ArgumentParser
 parser = ArgumentParser()
 parser.add_argument("-d", "--directory", help="Specify a directory.", required=True)
 parser.add_argument("-o", "--order", action='store_true', help="Select only ordered files.")
-parser.add_argument("-ow", "--overwrite", action='store_true', help="Overwirte .plexmatch file.")
+parser.add_argument("-ow", "--overwrite", action='store_true', help="Overwrite .plexmatch file.")
 parser.add_argument("-s", "--season", help="Specify a season number.")
 args = parser.parse_args()
 
@@ -24,8 +24,13 @@ if os.path.exists(plexmatchFilePath):
     else:
         quit()
 
-from natsort import os_sorted
-filelist = os_sorted(os.listdir(directory))
+# Natural sorting to handle numbers in filenames correctly (e.g., episode1, episode2, episode10)
+def natural_sort_key(text):
+    def convert(text):
+        return int(text) if text.isdigit() else text.lower()
+    return [convert(c) for c in re.split('([0-9]+)', text)]
+
+filelist = sorted(os.listdir(directory), key=natural_sort_key)
 video_exts = ['3g2', '3gp', 'asf', 'asx', 'avc', 'avi', 'avs', 'bivx', 'bup', 'divx', 'dv', 'dvr-ms', 'evo', 'fli', 'flv',
               'm2t', 'm2ts', 'm2v', 'm4v', 'mkv', 'mov', 'mp4', 'mpeg', 'mpg', 'mts', 'nsv', 'nuv', 'ogm', 'ogv', 'tp',
               'pva', 'qt', 'rm', 'rmvb', 'sdp', 'svq3', 'strm', 'ts', 'ty', 'vdr', 'viv', 'vob', 'vp3', 'wmv', 'wtv', 'xsp', 'xvid', 'webm']
@@ -48,6 +53,7 @@ with open(plexmatchFilePath,"a+") as f:
     index = 1
     for filename in filelist:
         ep = re.search(r'\d{2,3}', remove_prefix(filename, commonprefix)).group()
+        # Handle ordered matching and season detection
         if (args.order and index != int(ep)):
             if int(ep) == 1:
                 season_number = season_number + 1

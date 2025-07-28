@@ -15,9 +15,7 @@
 
 ## 安装要求
 
-```bash
-pip install natsort
-```
+无需外部依赖，仅使用 Python 标准库。
 
 ## 使用方法
 
