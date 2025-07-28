@@ -10,7 +10,6 @@ from argparse import ArgumentParser
 parser = ArgumentParser()
 parser.add_argument("-d", "--directory", help="Specify a directory.", required=True)
 parser.add_argument("-o", "--order", action='store_true', help="Select only ordered files.")
-parser.add_argument("-ow", "--overwrite", action='store_true', help="Overwrite .plexmatch file.")
 parser.add_argument("-s", "--season", help="Specify a season number.")
 args = parser.parse_args()
 
@@ -19,10 +18,7 @@ plexmatchFilename = '.plexmatch'
 plexmatchFilePath = os.path.join(directory, plexmatchFilename)
 
 if os.path.exists(plexmatchFilePath):
-    if (args.overwrite):
-        os.remove(plexmatchFilePath)
-    else:
-        quit()
+    os.remove(plexmatchFilePath)
 
 # Natural sorting to handle numbers in filenames correctly (e.g., episode1, episode2, episode10)
 def natural_sort_key(text):
