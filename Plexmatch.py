@@ -35,6 +35,10 @@ skip_files = [plexmatchFilename, '[SP]', '[MENU]']
 filelist = list(filter(lambda x: not any(map(x.__contains__, skip_files)) and os.path.isfile(os.path.join(directory, x)) and x.rsplit('.', 1)[-1] in video_exts, filelist))
 
 commonprefix = os.path.commonprefix(filelist)
+# Remove trailing digits from common prefix to avoid partial episode number extraction
+# e.g., "[Series][11" -> "[Series][" so we can extract full "1155" instead of just "55"
+commonprefix = re.sub(r'\d+$', '', commonprefix)
+
 def remove_prefix(text, prefix):
     if text.startswith(prefix):
         return text[len(prefix):]
@@ -48,7 +52,7 @@ with open(plexmatchFilePath,"a+") as f:
 
     index = 1
     for filename in filelist:
-        ep = re.search(r'\d{2,3}', remove_prefix(filename, commonprefix)).group()
+        ep = re.search(r'\d{2,}', remove_prefix(filename, commonprefix)).group()
         # Handle ordered matching and season detection
         if (args.order and index != int(ep)):
             if int(ep) == 1:

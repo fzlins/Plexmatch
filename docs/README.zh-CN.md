@@ -35,7 +35,6 @@ python -m Plexmatch -d "//Network\directory"
 
 - `-d, --directory`: 指定视频文件目录（必需）
 - `-o, --order`: 仅选择按顺序排列的文件
-- `-ow, --overwrite`: 覆盖现有的 .plexmatch 文件
 - `-s, --season`: 指定季数
 
 ### 使用示例
@@ -46,9 +45,6 @@ python -m Plexmatch -d "C:\TV Shows\My Series\Season 1"
 
 # 按顺序匹配并指定季数
 python -m Plexmatch -d "C:\TV Shows\My Series\Season 2" -o -s 2
-
-# 覆盖现有文件
-python -m Plexmatch -d "C:\TV Shows\My Series\Season 1" -ow
 ```
 
 ## 支持的视频格式
@@ -60,14 +56,30 @@ python -m Plexmatch -d "C:\TV Shows\My Series\Season 1" -ow
 1. 扫描指定目录中的所有视频文件
 2. 过滤掉特殊文件（如 [SP], [MENU] 等）
 3. 使用自然排序对文件进行排序
-4. 从文件名中提取剧集编号
-5. 生成格式为 `ep: S{season}E{episode}: {filename}` 的 .plexmatch 文件
+4. 检测文件名公共前缀并智能移除末尾数字，避免部分剧集编号提取问题
+5. 从文件名中提取剧集编号（支持 2 位及以上数字的剧集编号）
+6. 生成格式为 `ep: S{season}E{episode}: {filename}` 的 .plexmatch 文件
+
+## 算法改进
+
+### 智能前缀处理
+
+工具现在能智能处理可能以数字结尾的公共文件名前缀：
+
+- **问题**：对于 `[Group][Series][1155]`、`[Group][Series][1156]` 等文件，公共前缀会是 `[Group][Series][11`，导致只能提取到部分剧集编号（55、56）。
+- **解决方案**：自动移除公共前缀末尾的数字（例如 `[Group][Series][11` → `[Group][Series][`），确保提取完整的剧集编号。
+
+### 剧集编号提取
+
+- 支持任意长度的剧集编号（2 位及以上）
+- 处理传统格式（01-99）和扩展编号（100、1000+）
+- 适用于各种命名规范，无需针对特定模式编写逻辑
 
 ## 注意事项
 
-- 如果目录中已存在 `.plexmatch` 文件，程序会退出（除非使用 `-ow` 参数）
+- 每次运行都会自动重新生成 `.plexmatch` 文件
 - 程序会自动跳过包含 `[SP]` 和 `[MENU]` 标记的文件
-- 剧集编号通过正则表达式从文件名中提取（查找 2-3 位数字）
+- 剧集编号通过正则表达式从文件名中提取（查找 2 个及以上连续数字）
 
 ## 许可证
 

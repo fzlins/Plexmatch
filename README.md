@@ -35,7 +35,6 @@ python -m Plexmatch -d "//Network\directory"
 
 - `-d, --directory`: Specify video file directory (required)
 - `-o, --order`: Select only ordered files
-- `-ow, --overwrite`: Overwrite existing .plexmatch file
 - `-s, --season`: Specify season number
 
 ### Examples
@@ -46,9 +45,6 @@ python -m Plexmatch -d "C:\TV Shows\My Series\Season 1"
 
 # Ordered matching with custom season
 python -m Plexmatch -d "C:\TV Shows\My Series\Season 2" -o -s 2
-
-# Overwrite existing file
-python -m Plexmatch -d "C:\TV Shows\My Series\Season 1" -ow
 ```
 
 ## Supported Video Formats
@@ -60,14 +56,30 @@ python -m Plexmatch -d "C:\TV Shows\My Series\Season 1" -ow
 1. Scan all video files in the specified directory
 2. Filter out special files (like [SP], [MENU], etc.)
 3. Sort files using natural sorting
-4. Extract episode numbers from filenames
-5. Generate .plexmatch file with format `ep: S{season}E{episode}: {filename}`
+4. Detect common filename prefix and intelligently remove trailing digits to avoid partial episode number extraction
+5. Extract episode numbers from filenames (supports 2+ digit episode numbers)
+6. Generate .plexmatch file with format `ep: S{season}E{episode}: {filename}`
+
+## Algorithm Improvements
+
+### Intelligent Prefix Handling
+
+The tool now intelligently handles common filename prefixes that may end with digits:
+
+- **Problem**: For files like `[Group][Series][1155]`, `[Group][Series][1156]`, etc., the common prefix would be `[Group][Series][11`, leaving only partial episode numbers (55, 56).
+- **Solution**: Automatically removes trailing digits from the common prefix (e.g., `[Group][Series][11` → `[Group][Series][`), ensuring full episode numbers are extracted.
+
+### Episode Number Extraction
+
+- Supports episode numbers of any length (2+ digits)
+- Handles traditional formats (01-99) and extended numbering (100, 1000+)
+- Works with various naming conventions without requiring pattern-specific logic
 
 ## Notes
 
-- If `.plexmatch` file already exists in the directory, the program will exit (unless using `-ow` parameter)
+- The `.plexmatch` file is automatically regenerated on each run
 - The program automatically skips files containing `[SP]` and `[MENU]` markers
-- Episode numbers are extracted from filenames using regex (looking for 2-3 digit numbers)
+- Episode numbers are extracted from filenames using regex (looking for 2 or more consecutive digits)
 
 ## License
 
